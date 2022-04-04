@@ -1,16 +1,20 @@
 import React, { useEffect } from 'react'
-import { NavigationContainer } from '@react-navigation/native'
 import SplashScreen from 'react-native-splash-screen'
-import Routes from './src/routes/Routes'
+import { Provider } from 'react-redux';
+import { persistedStore, store } from './src/store';
+import { PersistGate } from 'redux-persist/lib/integration/react';
+import Root from './src/routes';
 
 const App = () => {
   useEffect(() => {
     SplashScreen.hide()
   }, [])
   return (
-    <NavigationContainer>
-      <Routes />
-    </NavigationContainer>
+    <Provider store={store}>
+      <PersistGate persistor={persistedStore}>
+        <Root />
+      </PersistGate>
+    </Provider>
   )
 }
 
