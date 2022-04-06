@@ -13,19 +13,21 @@ import Share from 'react-native-share';
 import {getDetailBooksById} from '../Home/redux/action';
 import PushNotification, {Importance} from 'react-native-push-notification';
 import Loading from '../../components/Loading';
+import NetInfo from '@react-native-community/netinfo';
 import {ms} from 'react-native-size-matters';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {BaseUrl} from '../../helpers/api';
-import {setRefresh} from '../../store/globalAction';
+import NoConnection from '../../components/NoConnection';
+import {setConnection, setRefresh} from '../../store/globalAction';
 
 const BookDetail = ({navigation}) => {
-  const {loading, refreshing} = useSelector(state => state.Global);
-  const dispatch = useDispatch();
+  const {loading, refreshing, connection} = useSelector(state => state.Global);
   const {detailBook = []} = useSelector(state => state.home);
+  const dispatch = useDispatch();
 
   const getDetailBook = () => {
-    dispatch(getDetailBooksById());
-    // dispatch untuk fetching
+    dispatch(getDetailBooksById()); // dispatch untuk fetching
+    checkConnection();
   };
 
   useEffect(() => {
@@ -38,15 +40,35 @@ const BookDetail = ({navigation}) => {
     dispatch(setRefresh(false));
   };
 
-  const rupiah = number => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(number);
+  const checkConnection = () => {
+    NetInfo.fetch().then(state => {
+      console.log('Connection type', state.type);
+      console.log('Is connected?', state.isConnected);
+
+      dispatch(setConnection(state.isConnected));
+      if (!state.isConnected) {
+        navigate('NoConnection');
+      }
+    });
   };
 
-  const harga = rupiah(detailBook.price);
+  //Fungsi formatRupiah
+  function formatRupiah(angka, prefix) {
+    let number_string = angka.replace(/[^,\d]/g, '').toString(),
+      split = number_string.split(','),
+      sisa = split[0].length % 3,
+      rupiah = split[0].substr(0, sisa),
+      ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+    // tambahkan titik jika yang di input sudah menjadi angka ribuan
+    if (ribuan) {
+      separator = sisa ? '.' : '';
+      rupiah += separator + ribuan.join('.');
+    }
+    rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+    return prefix == undefined ? rupiah : rupiah ? 'Rp. ' + rupiah : '';
+  }
+
+  const harga = formatRupiah(detailBook.price, 'rupiah');
 
   const shareFeature = async () => {
     const content = {
@@ -109,6 +131,11 @@ const BookDetail = ({navigation}) => {
   if (loading) {
     return <Loading />;
   }
+
+  // if (!connection) {
+  //   return <NoConnection />;
+  // }
+
   return (
     <ScrollView
       style={styles.mainContainer}
