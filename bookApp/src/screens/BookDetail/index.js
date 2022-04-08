@@ -17,8 +17,8 @@ import NetInfo from '@react-native-community/netinfo';
 import {ms} from 'react-native-size-matters';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {BaseUrl} from '../../helpers/api';
-import NoConnection from '../../components/NoConnection';
 import {setConnection, setRefresh} from '../../store/globalAction';
+import formatRupiah from '../../components/Rupiah';
 
 const BookDetail = ({navigation}) => {
   const {loading, refreshing, connection} = useSelector(state => state.Global);
@@ -51,22 +51,6 @@ const BookDetail = ({navigation}) => {
       }
     });
   };
-
-  //Fungsi formatRupiah
-  function formatRupiah(angka, prefix) {
-    let number_string = angka.replace(/[^,\d]/g, '').toString(),
-      split = number_string.split(','),
-      sisa = split[0].length % 3,
-      rupiah = split[0].substr(0, sisa),
-      ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-    // tambahkan titik jika yang di input sudah menjadi angka ribuan
-    if (ribuan) {
-      separator = sisa ? '.' : '';
-      rupiah += separator + ribuan.join('.');
-    }
-    rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-    return prefix == undefined ? rupiah : rupiah ? 'Rp. ' + rupiah : '';
-  }
 
   const harga = formatRupiah(detailBook.price, 'rupiah');
 
@@ -131,10 +115,6 @@ const BookDetail = ({navigation}) => {
   if (loading) {
     return <Loading />;
   }
-
-  // if (!connection) {
-  //   return <NoConnection />;
-  // }
 
   return (
     <ScrollView

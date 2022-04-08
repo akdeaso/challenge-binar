@@ -16,6 +16,7 @@ import {getDataBook, getDetailBooksById} from './redux/action';
 import Loading from '../../components/Loading';
 import {setConnection, setRefresh} from '../../store/globalAction';
 import {navigate} from '../../helpers/navigate';
+import formatRupiah from '../../components/Rupiah';
 
 const Home = () => {
   const {loading, refreshing, connection} = useSelector(state => state.Global);
@@ -54,22 +55,6 @@ const Home = () => {
       }
     });
   };
-
-  //Fungsi formatRupiah
-  function formatRupiah(angka, prefix) {
-    let number_string = angka.replace(/[^,\d]/g, '').toString(),
-      split = number_string.split(','),
-      sisa = split[0].length % 3,
-      rupiah = split[0].substr(0, sisa),
-      ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-    // tambahkan titik jika yang di input sudah menjadi angka ribuan
-    if (ribuan) {
-      separator = sisa ? '.' : '';
-      rupiah += separator + ribuan.join('.');
-    }
-    rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-    return prefix == undefined ? rupiah : rupiah ? 'Rp. ' + rupiah : '';
-  }
 
   const BookContainer = ({item}) => {
     const harga = formatRupiah(item.price, 'rupiah');
