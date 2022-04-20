@@ -1,10 +1,8 @@
 import * as React from 'react';
 import {create} from 'react-test-renderer';
-import Home from '../../src/screens/Home';
+import Login from '../../src/screens/Login';
 
-jest.mock('@react-native-community/netinfo', () => ({}));
-
-const component = create(<Home />);
+const component = create(<Login />);
 
 describe('should render', () => {
   test('matching snapshot', () => {
